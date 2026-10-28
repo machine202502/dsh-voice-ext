@@ -21,7 +21,7 @@
 
 ## Настройки
 
-Страница **Plugins → Voice extension**:
+Страница **Plugins → Voice ext**:
 
 | Поле | По умолчанию | Смысл |
 |---|---|---|
@@ -55,6 +55,17 @@
     defaultProvider: dsh-voice-ext
     language: ru
 ```
+
+## Установка
+
+```json
+"dsh-voice-ext": "github:machine202502/dsh-voice-ext#main"
+```
+
+и добавить `dsh-voice-ext` в `dsh.profile.bundles`. При установке подтягиваются
+`sherpa-onnx-node@1.13.8` и платформенный бинарник (`sherpa-onnx-win-x64` на Windows).
+После перезапуска провайдер регистрируется; если модель не найдена и `autoDownload`
+включён, она скачается при старте (224 МБ).
 
 ## Проверка
 
