@@ -1,5 +1,5 @@
 window.__ModuleLoader__.load({
-  id: 'hsb-voice-ext',
+  id: 'dsh-voice-ext',
   factory(require) {
     const React = require('react');
     const h = React.createElement;
@@ -197,10 +197,10 @@ window.__ModuleLoader__.load({
         try {
           ctx.slots.inject('plugins.row.config', () => ctx.slots.register({
             name: 'plugins.row.config',
-            key: 'hsb-voice-ext#voice-ext',
+            key: 'dsh-voice-ext#voice-ext',
           }, VoiceSettings));
         } catch (error) {
-          console.warn('hsb-voice-ext: settings slot failed', error);
+          console.warn('dsh-voice-ext: settings slot failed', error);
         }
       },
     };

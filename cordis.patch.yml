@@ -1,8 +1,8 @@
 - insert:
     - id: voice-ext
-      name: 'hsb-voice-ext'
+      name: 'dsh-voice-ext'
       config:
-        providerId: hsb-voice-ext
+        providerId: dsh-voice-ext
         language: ru
         threads: 2
         autoDownload: true

@@ -1,4 +1,4 @@
-# hsb-voice-ext
+# dsh-voice-ext
 
 Локальное распознавание **русской** речи для DeepSeek Harness.
 
@@ -6,7 +6,7 @@
 `ctx.speechToText`, поэтому кнопка микрофона, запись и вставка текста остаются штатными.
 
 ```
-кнопка микрофона → ctx.speechToText → провайдер hsb-voice-ext → GigaAM v3 (sherpa-onnx)
+кнопка микрофона → ctx.speechToText → провайдер dsh-voice-ext → GigaAM v3 (sherpa-onnx)
 ```
 
 ## Модель
@@ -16,7 +16,7 @@
 
 - `model.int8.onnx` — 224 721 476 байт, SHA-256 проверяется после скачивания;
 - `tokens.txt` — словарь модели;
-- каталог по умолчанию: `%LOCALAPPDATA%\hsb-voice-ext\models\gigaam-v3`;
+- каталог по умолчанию: `%LOCALAPPDATA%\dsh-voice-ext\models\gigaam-v3`;
 - CPU, ~1.1 с на 5.5-секундную фразу, без Python и GPU.
 
 ## Настройки
@@ -25,7 +25,7 @@
 
 | Поле | По умолчанию | Смысл |
 |---|---|---|
-| Каталог модели | `%LOCALAPPDATA%\hsb-voice-ext\models\gigaam-v3` | любой каталог с `model.int8.onnx` и `tokens.txt` |
+| Каталог модели | `%LOCALAPPDATA%\dsh-voice-ext\models\gigaam-v3` | любой каталог с `model.int8.onnx` и `tokens.txt` |
 | Потоков CPU | 2 | `numThreads` узнавателя |
 | Скачивать автоматически | включено | докачать модель при старте, если её нет |
 
@@ -39,9 +39,9 @@
 ```yaml
 - insert:
     - id: voice-ext
-      name: 'hsb-voice-ext'
+      name: 'dsh-voice-ext'
       config:
-        providerId: hsb-voice-ext
+        providerId: dsh-voice-ext
         language: ru
         threads: 2
         autoDownload: true
@@ -52,7 +52,7 @@
 ```yaml
 - id: speech-to-text
   config:
-    defaultProvider: hsb-voice-ext
+    defaultProvider: dsh-voice-ext
     language: ru
 ```
 
@@ -66,7 +66,7 @@ node tests/provider.mjs   # регистрирует провайдера и р�
 Эталон: «Вот мой голос, меня же слышно хорошо».
 
 Диагностический прогон через общий сервис включается конфигом `selfTest: <путь к wav>`;
-результат пишется в `%LOCALAPPDATA%\hsb-voice-ext\selftest.json`.
+результат пишется в `%LOCALAPPDATA%\dsh-voice-ext\selftest.json`.
 
 ## Зависимости
 

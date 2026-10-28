@@ -6,9 +6,9 @@ import { DEFAULT_MODEL_DIR, ensureModel, modelPresent } from '../src/model.js';
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
 const dataRoot = process.env.LOCALAPPDATA
-  ? join(process.env.LOCALAPPDATA, 'hsb-voice-ext')
-  : join(process.env.HOME ?? process.env.USERPROFILE ?? '.', '.hsb-voice-ext');
-const modelDir = process.env.HSB_VOICE_MODEL_DIR || DEFAULT_MODEL_DIR(dataRoot);
+  ? join(process.env.LOCALAPPDATA, 'dsh-voice-ext')
+  : join(process.env.HOME ?? process.env.USERPROFILE ?? '.', '.dsh-voice-ext');
+const modelDir = process.env.DSH_VOICE_MODEL_DIR || DEFAULT_MODEL_DIR(dataRoot);
 
 if (!modelPresent(modelDir)) {
   console.log(`downloading model into ${modelDir} …`);

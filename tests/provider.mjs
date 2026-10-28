@@ -19,17 +19,17 @@ const ctx = {
       return async () => {};
     },
     listProviders: () => registrations.map((provider) => provider.info),
-    snapshot: () => ({ providers: [], selection: { providerId: 'hsb-voice-ext', language: 'ru' } }),
+    snapshot: () => ({ providers: [], selection: { providerId: 'dsh-voice-ext', language: 'ru' } }),
   },
   get: () => undefined,
 };
 
-const modelDir = join(process.env.LOCALAPPDATA ?? '.', 'hsb-voice-ext', 'models', 'gigaam-v3');
+const modelDir = join(process.env.LOCALAPPDATA ?? '.', 'dsh-voice-ext', 'models', 'gigaam-v3');
 apply(ctx, { modelDir, autoDownload: false });
 
 assert.equal(registrations.length, 1, 'provider must be registered once');
 const provider = registrations[0];
-assert.equal(provider.info.id, 'hsb-voice-ext');
+assert.equal(provider.info.id, 'dsh-voice-ext');
 assert.ok(provider.info.languages.includes('ru'), 'provider must advertise Russian');
 assert.equal(provider.preparation.snapshot().phase, 'ready', 'fixture model must be present');
 

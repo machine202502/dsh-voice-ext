@@ -6,13 +6,13 @@ import { GigaAmEngine, tidy } from './src/engine.js';
 import { DEFAULT_MODEL_DIR, ensureModel, modelPresent } from './src/model.js';
 import { createSettingsStore } from './src/settings.js';
 
-export const name = 'hsb-voice-ext';
+export const name = 'dsh-voice-ext';
 export const inject = ['speechToText'];
 
 const dataRoot = () => {
   const base = process.env.LOCALAPPDATA
     || (process.platform === 'darwin' ? join(homedir(), 'Library', 'Application Support') : join(homedir(), '.local', 'share'));
-  return join(base, 'hsb-voice-ext');
+  return join(base, 'dsh-voice-ext');
 };
 
 const modelSize = (dir) => {
@@ -30,7 +30,7 @@ const modelSize = (dir) => {
  * only adds a recognizer, so the UI does not need to change.
  */
 export function apply(ctx, config = {}) {
-  const providerId = config.providerId || 'hsb-voice-ext';
+  const providerId = config.providerId || 'dsh-voice-ext';
   const root = dataRoot();
   const store = createSettingsStore(root);
   const engineDefaults = () => ({
@@ -87,10 +87,10 @@ export function apply(ctx, config = {}) {
         },
       });
       publish({ phase: 'ready' });
-      ctx.logger?.info?.(`hsb-voice-ext: model ready at ${settings.modelDir}`);
+      ctx.logger?.info?.(`dsh-voice-ext: model ready at ${settings.modelDir}`);
     } catch (error) {
       publish({ phase: 'unprepared' });
-      ctx.logger?.warn?.(`hsb-voice-ext: model download failed: ${error?.message ?? error}`);
+      ctx.logger?.warn?.(`dsh-voice-ext: model download failed: ${error?.message ?? error}`);
       throw error;
     }
   };
@@ -207,7 +207,7 @@ export function apply(ctx, config = {}) {
         return { ...transcript, text: tidy(transcript.text) };
       },
     });
-    ctx.logger?.info?.(`hsb-voice-ext: provider ${providerId} registered (${effective().modelDir})`);
+    ctx.logger?.info?.(`dsh-voice-ext: provider ${providerId} registered (${effective().modelDir})`);
 
     if (effective().autoDownload && !modelPresent(effective().modelDir)) {
       void preparation.prepare().catch(() => {});
