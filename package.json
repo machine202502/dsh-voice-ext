@@ -1,0 +1,36 @@
+{
+  "name": "hsb-voice-ext",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Local Russian speech recognition for DeepSeek Harness: GigaAM v3 CTC via sherpa-onnx, with a custom model path and provider settings.",
+  "license": "MIT",
+  "author": "machine202502",
+  "engines": {
+    "node": ">=20"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md",
+    "src/*.js"
+  ],
+  "dependencies": {
+    "sherpa-onnx-node": "1.13.8",
+    "sherpa-onnx-win-x64": "1.13.8"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

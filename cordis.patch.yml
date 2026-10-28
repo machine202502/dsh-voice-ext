@@ -1,0 +1,8 @@
+- insert:
+    - id: voice-ext
+      name: 'hsb-voice-ext'
+      config:
+        providerId: hsb-voice-ext
+        language: ru
+        threads: 2
+        autoDownload: true
