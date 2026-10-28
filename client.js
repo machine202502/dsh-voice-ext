@@ -13,7 +13,7 @@ window.__ModuleLoader__.load({
 
     const STRINGS = {
       en: {
-        title: 'Voice extension',
+        title: 'Voice ext',
         statusReady: 'Model installed',
         statusMissing: 'Model not installed',
         statusDownloading: 'Downloading the model…',
@@ -30,7 +30,7 @@ window.__ModuleLoader__.load({
         loading: 'Loading…',
       },
       ru: {
-        title: 'Голосовое расширение',
+        title: 'Voice ext',
         statusReady: 'Модель установлена',
         statusMissing: 'Модель не установлена',
         statusDownloading: 'Скачивается модель…',

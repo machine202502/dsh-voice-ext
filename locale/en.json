@@ -1,6 +1,6 @@
 {
   "meta": {
-    "title": "Voice extension",
+    "title": "Voice ext",
     "description": "Local Russian speech recognition with GigaAM v3; keeps the built-in Voice input and adds a provider"
   }
 }
