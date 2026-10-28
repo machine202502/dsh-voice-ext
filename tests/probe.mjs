@@ -25,8 +25,9 @@ if (!modelPresent(modelDir)) {
 const engine = new GigaAmEngine({ modelDir, threads: 2 });
 const wav = readFileSync(join(root, 'tests', 'fixtures', 'sample-ru-16k.wav'));
 const started = Date.now();
-const raw = engine.transcribe(wav);
-console.log(`raw: ${raw}`);
-console.log(`tidy: ${tidy(raw)}`);
+const transcript = engine.transcribe(wav);
+console.log(`raw: ${transcript.text}`);
+console.log(`tidy: ${tidy(transcript.text)}`);
+console.log(`audio: ${transcript.audioSeconds.toFixed(2)} s`);
 console.log(`elapsed: ${Date.now() - started} ms`);
 engine.dispose();

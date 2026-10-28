@@ -34,17 +34,23 @@ export class GigaAmEngine {
   /**
    * Recognize one complete recording.
    * @param audio - RIFF/WAVE bytes from the speech seam.
-   * @returns recognized text without trailing whitespace.
+   * @returns transcript with the timing the speech Remote expects.
    */
   transcribe(audio) {
     const { samples, sampleRate } = wavToSamples(audio);
     const recognizer = this.load();
     const stream = recognizer.createStream();
     stream.acceptWaveform({ samples, sampleRate });
+    const started = Date.now();
     recognizer.decode(stream);
     const result = recognizer.getResult(stream);
+    const inferenceSeconds = (Date.now() - started) / 1000;
     stream.free?.();
-    return String(result?.text ?? '').trim();
+    return {
+      text: String(result?.text ?? '').trim(),
+      audioSeconds: samples.length / sampleRate,
+      inferenceSeconds,
+    };
   }
 
   dispose() {

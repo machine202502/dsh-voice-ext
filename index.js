@@ -203,8 +203,8 @@ export function apply(ctx, config = {}) {
         if (!modelPresent(settings.modelDir)) {
           throw new Error('GigaAM v3 model is not installed yet; open Plugins → Voice ext and install it');
         }
-        const text = ensureEngine().transcribe(input.audio);
-        return tidy(text);
+        const transcript = ensureEngine().transcribe(input.audio);
+        return { ...transcript, text: tidy(transcript.text) };
       },
     });
     ctx.logger?.info?.(`hsb-voice-ext: provider ${providerId} registered (${effective().modelDir})`);
@@ -230,7 +230,9 @@ export function apply(ctx, config = {}) {
           await preparation.prepare();
           const audio = new Uint8Array(readFileSync(config.selfTest));
           const spec = ctx.speechToText.resolve({ audio, providerId, language: config.language ?? 'ru' });
-          result.text = await ctx.speechToText.transcribe(spec, AbortSignal.timeout(120_000));
+          const transcript = await ctx.speechToText.transcribe(spec, AbortSignal.timeout(120_000));
+          result.text = transcript.text;
+          result.audioSeconds = transcript.audioSeconds;
           result.ok = true;
         } catch (error) {
           result.ok = false;
