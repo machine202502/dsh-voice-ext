@@ -191,9 +191,62 @@ window.__ModuleLoader__.load({
       );
     }
 
+    /**
+     * Keep dictation alive while the window loses focus.
+     *
+     * The built-in voice input cancels a recording on window blur and on a
+     * hidden document. Both listeners are registered after this plugin applies,
+     * so wrapping addEventListener lets an active microphone stream swallow
+     * those two event types and keep recording until the user stops it.
+     */
+    const installBackgroundMicrophone = () => {
+      if (window.__dshVoiceBackgroundMicrophone) return;
+      window.__dshVoiceBackgroundMicrophone = true;
+      const media = navigator.mediaDevices;
+      if (!media || typeof media.getUserMedia !== 'function') return;
+
+      let live = 0;
+      const original = media.getUserMedia.bind(media);
+      media.getUserMedia = async (constraints) => {
+        const stream = await original(constraints);
+        live += 1;
+        const release = () => { live = Math.max(0, live - 1); };
+        for (const track of stream.getTracks()) track.addEventListener('ended', release, { once: true });
+        return stream;
+      };
+
+      const wrap = (target) => {
+        const add = target.addEventListener.bind(target);
+        const remove = target.removeEventListener.bind(target);
+        const registry = new WeakMap();
+        target.addEventListener = function (type, listener, options) {
+          if (typeof listener === 'function' && (type === 'blur' || type === 'visibilitychange')) {
+            let wrapped = registry.get(listener);
+            if (wrapped === undefined) {
+              wrapped = function (event) {
+                if (live > 0) return;
+                return listener.call(this, event);
+              };
+              registry.set(listener, wrapped);
+            }
+            return add(type, wrapped, options);
+          }
+          return add(type, listener, options);
+        };
+        target.removeEventListener = function (type, listener, options) {
+          const wrapped = registry.get(listener);
+          return remove(type, wrapped ?? listener, options);
+        };
+      };
+
+      wrap(window);
+      wrap(document);
+    };
+
     return {
       inject: ['slots'],
       apply(ctx) {
+      installBackgroundMicrophone();
         try {
           ctx.slots.inject('plugins.row.config', () => ctx.slots.register({
             name: 'plugins.row.config',
