@@ -6,10 +6,32 @@ window.__ModuleLoader__.load({
 
     const base = 'http://127.0.0.1:49234';
 
-    const LOCALE = (() => {
-      const lang = (document.documentElement.lang || navigator.language || 'en').toLowerCase();
-      return lang.startsWith('ru') ? 'ru' : 'en';
-    })();
+    /**
+     * Interface languages and the resolution order shared by the plugins in
+     * this folder: a saved ru/en/zh wins, a saved `auto` follows the
+     * application locale, and with no setting at all the default is ru.
+     */
+    const LANGUAGES = ['ru', 'en', 'zh', 'auto'];
+    const DEFAULT_LANGUAGE = 'ru';
+
+    /** The application locale, consulted only when the saved setting is `auto`. */
+    const detectLanguage = () => {
+      const raw = String(
+        (typeof document === 'undefined' ? '' : document.documentElement?.lang)
+        || (typeof navigator === 'undefined' ? '' : navigator.language)
+        || 'en',
+      ).toLowerCase();
+      if (raw.startsWith('ru')) return 'ru';
+      if (raw.startsWith('zh')) return 'zh';
+      return 'en';
+    };
+
+    const resolveLanguage = (settings) => {
+      const preference = settings?.language;
+      if (preference === 'ru' || preference === 'en' || preference === 'zh') return preference;
+      if (preference === 'auto') return detectLanguage();
+      return DEFAULT_LANGUAGE;
+    };
 
     const STRINGS = {
       en: {
@@ -21,10 +43,19 @@ window.__ModuleLoader__.load({
         modelDirHint: 'a folder with model.int8.onnx and tokens.txt',
         threads: 'CPU threads',
         autoDownload: 'Download automatically',
+        language: 'Language',
+        languageHint: 'Auto follows the application language',
+        languageRu: 'Русский',
+        languageEn: 'English',
+        languageZh: '中文',
+        auto: 'Auto',
+        unitMb: 'MB',
         save: 'Save',
         saved: 'Saved',
+        saveFailed: 'Could not save',
         install: 'Download model',
         installing: 'Downloading…',
+        installFailed: 'Could not download the model',
         selection: 'Current selection',
         unavailable: 'Local service is unavailable',
         loading: 'Loading…',
@@ -38,17 +69,50 @@ window.__ModuleLoader__.load({
         modelDirHint: 'папка с model.int8.onnx и tokens.txt',
         threads: 'Потоков CPU',
         autoDownload: 'Скачивать автоматически',
+        language: 'Язык',
+        languageHint: 'Авто — по языку приложения',
+        languageRu: 'Русский',
+        languageEn: 'English',
+        languageZh: '中文',
+        auto: 'Авто',
+        unitMb: 'МБ',
         save: 'Сохранить',
         saved: 'Сохранено',
+        saveFailed: 'Не удалось сохранить',
         install: 'Скачать модель',
         installing: 'Скачивание…',
+        installFailed: 'Не удалось скачать модель',
         selection: 'Текущий выбор',
         unavailable: 'Локальный сервис недоступен',
         loading: 'Загрузка…',
       },
+      zh: {
+        title: 'Voice ext',
+        statusReady: '模型已安装',
+        statusMissing: '模型未安装',
+        statusDownloading: '正在下载模型…',
+        modelDir: '模型目录',
+        modelDirHint: '包含 model.int8.onnx 和 tokens.txt 的文件夹',
+        threads: 'CPU 线程数',
+        autoDownload: '自动下载',
+        language: '语言',
+        languageHint: '自动 — 跟随应用界面语言',
+        languageRu: 'Русский',
+        languageEn: 'English',
+        languageZh: '中文',
+        auto: '自动',
+        unitMb: 'MB',
+        save: '保存',
+        saved: '已保存',
+        saveFailed: '保存失败',
+        install: '下载模型',
+        installing: '正在下载…',
+        installFailed: '模型下载失败',
+        selection: '当前选择',
+        unavailable: '本地服务不可用',
+        loading: '加载中…',
+      },
     };
-
-    const t = STRINGS[LOCALE];
 
     const ensureStyles = () => {
       if (document.querySelector('style[data-plugin="voice-ext-settings"]')) return;
@@ -65,6 +129,8 @@ window.__ModuleLoader__.load({
 .ve-input { width: 100%; height: 32px; padding: 0 10px; border: 1px solid #dcdcdc; border-radius: 10px; background: #fff; color: inherit; font: inherit; outline: none; box-sizing: border-box; }
 .ve-input:focus { border-color: #9a9a9a; }
 .ve-input--short { width: 88px; }
+.ve-select { height: 32px; min-width: 150px; padding: 0 10px; border: 1px solid #dcdcdc; border-radius: 10px; background: #fff; color: inherit; font: inherit; outline: none; box-sizing: border-box; cursor: pointer; }
+.ve-select:focus { border-color: #9a9a9a; }
 .ve-switch { appearance: none; -webkit-appearance: none; position: relative; width: 36px; height: 20px; margin: 0; border-radius: 999px; background: #d9d9d9; cursor: pointer; transition: background 120ms ease; }
 .ve-switch:checked { background: #1f1f1f; }
 .ve-switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform 120ms ease; }
@@ -85,7 +151,7 @@ window.__ModuleLoader__.load({
       const [saving, setSaving] = React.useState(false);
       const [notice, setNotice] = React.useState({ text: '', error: false });
 
-      const load = () => fetch(`${base}/status`)
+      const load = () => fetch(`${base}/status`, { cache: 'no-store' })
         .then((response) => response.json())
         .then((data) => setState({ status: 'ready', ...data }))
         .catch(() => setState({ status: 'error' }));
@@ -96,8 +162,12 @@ window.__ModuleLoader__.load({
         return () => { alive = false; };
       }, []);
 
-      if (state.status === 'loading') return h('div', { className: 've-set', style: { color: '#8a8a8a' } }, t.loading);
-      if (state.status === 'error') return h('div', { className: 've-set', style: { color: '#c0392b' } }, t.unavailable);
+      // Before the first fetch the settings are unknown, so the default (ru)
+      // applies; afterwards the saved preference decides.
+      const strings = STRINGS[resolveLanguage(state)];
+
+      if (state.status === 'loading') return h('div', { className: 've-set', style: { color: '#8a8a8a' } }, strings.loading);
+      if (state.status === 'error') return h('div', { className: 've-set', style: { color: '#c0392b' } }, strings.unavailable);
 
       const update = (patch) => setState((current) => ({ ...current, ...patch }));
 
@@ -108,14 +178,19 @@ window.__ModuleLoader__.load({
           const response = await fetch(`${base}/settings`, {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
-            body: JSON.stringify({ modelDir: state.modelDir, threads: state.threads, autoDownload: state.autoDownload }),
+            body: JSON.stringify({
+              modelDir: state.modelDir,
+              threads: state.threads,
+              autoDownload: state.autoDownload,
+              language: state.language ?? DEFAULT_LANGUAGE,
+            }),
           });
           const data = await response.json();
           if (!response.ok) throw new Error(data.error ?? `HTTP ${response.status}`);
           setState({ status: 'ready', ...data });
-          setNotice({ text: t.saved, error: false });
+          setNotice({ text: STRINGS[resolveLanguage(data)].saved, error: false });
         } catch (error) {
-          setNotice({ text: String(error.message ?? error), error: true });
+          setNotice({ text: `${strings.saveFailed}: ${String(error.message ?? error)}`, error: true });
         } finally {
           setSaving(false);
         }
@@ -123,7 +198,7 @@ window.__ModuleLoader__.load({
 
       const install = async () => {
         setSaving(true);
-        setNotice({ text: t.installing, error: false });
+        setNotice({ text: strings.installing, error: false });
         try {
           const response = await fetch(`${base}/prepare`, { method: 'POST' });
           const data = await response.json();
@@ -131,40 +206,62 @@ window.__ModuleLoader__.load({
           setState({ status: 'ready', ...data });
           setNotice({ text: '', error: false });
         } catch (error) {
-          setNotice({ text: String(error.message ?? error), error: true });
+          setNotice({ text: `${strings.installFailed}: ${String(error.message ?? error)}`, error: true });
         } finally {
           setSaving(false);
         }
       };
 
       const megabytes = Math.round((state.bytes ?? 0) / 1024 / 1024);
-      const label = state.phase === 'downloading' ? t.statusDownloading : state.installed ? `${t.statusReady} · ${megabytes} MB` : t.statusMissing;
+      const label = state.phase === 'downloading'
+        ? strings.statusDownloading
+        : state.installed
+          ? `${strings.statusReady} · ${megabytes} ${strings.unitMb}`
+          : strings.statusMissing;
+
+      const languageLabels = {
+        ru: strings.languageRu,
+        en: strings.languageEn,
+        zh: strings.languageZh,
+        auto: strings.auto,
+      };
 
       return h('div', { className: 've-set' },
         h('div', { className: 've-row' },
           h('div', null,
-            h('div', { className: 've-label' }, t.title),
+            h('div', { className: 've-label' }, strings.title),
             h('div', { className: 've-hint' }, state.selection
-              ? `${t.selection}: ${state.selection.providerId} · ${state.selection.language}`
-              : t.title),
+              ? `${strings.selection}: ${state.selection.providerId} · ${state.selection.language}`
+              : strings.title),
           ),
           h('span', { className: 've-state' },
             h('span', { className: `ve-dot${state.installed ? ' ve-dot--ok' : ''}` }),
             label,
           ),
         ),
+        h('div', { className: 've-row' },
+          h('div', null,
+            h('div', { className: 've-label' }, strings.language),
+            h('div', { className: 've-hint' }, strings.languageHint),
+          ),
+          h('select', {
+            className: 've-select',
+            value: state.language ?? DEFAULT_LANGUAGE,
+            onChange: (event) => update({ language: event.target.value }),
+          }, LANGUAGES.map((value) => h('option', { key: value, value }, languageLabels[value]))),
+        ),
         h('div', null,
-          h('div', { className: 've-label' }, t.modelDir),
+          h('div', { className: 've-label' }, strings.modelDir),
           h('input', {
             className: 've-input',
             value: state.modelDir ?? '',
             onChange: (event) => update({ modelDir: event.target.value }),
             spellCheck: false,
           }),
-          h('div', { className: 've-hint' }, t.modelDirHint),
+          h('div', { className: 've-hint' }, strings.modelDirHint),
         ),
         h('div', { className: 've-row' },
-          h('div', { className: 've-label' }, t.threads),
+          h('div', { className: 've-label' }, strings.threads),
           h('input', {
             type: 'number',
             min: 1,
@@ -175,7 +272,7 @@ window.__ModuleLoader__.load({
           }),
         ),
         h('div', { className: 've-row' },
-          h('div', { className: 've-label' }, t.autoDownload),
+          h('div', { className: 've-label' }, strings.autoDownload),
           h('input', {
             type: 'checkbox',
             className: 've-switch',
@@ -184,8 +281,8 @@ window.__ModuleLoader__.load({
           }),
         ),
         h('div', { className: 've-actions' },
-          h('button', { className: 've-btn ve-btn--primary', disabled: saving, onClick: save }, t.save),
-          h('button', { className: 've-btn', disabled: saving || state.installed, onClick: install }, t.install),
+          h('button', { className: 've-btn ve-btn--primary', disabled: saving, onClick: save }, strings.save),
+          h('button', { className: 've-btn', disabled: saving || state.installed, onClick: install }, strings.install),
           notice.text ? h('span', { className: `ve-status${notice.error ? ' ve-status--error' : ''}` }, notice.text) : null,
         ),
       );
@@ -246,7 +343,7 @@ window.__ModuleLoader__.load({
     return {
       inject: ['slots'],
       apply(ctx) {
-      installBackgroundMicrophone();
+        installBackgroundMicrophone();
         try {
           ctx.slots.inject('plugins.row.config', () => ctx.slots.register({
             name: 'plugins.row.config',

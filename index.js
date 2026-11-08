@@ -4,7 +4,7 @@ import { homedir } from 'node:os';
 import { createServer } from 'node:http';
 import { GigaAmEngine, tidy } from './src/engine.js';
 import { DEFAULT_MODEL_DIR, ensureModel, modelPresent } from './src/model.js';
-import { createSettingsStore } from './src/settings.js';
+import { createSettingsStore, DEFAULT_LANGUAGE } from './src/settings.js';
 
 export const name = 'dsh-voice-ext';
 export const inject = ['speechToText'];
@@ -128,6 +128,7 @@ export function apply(ctx, config = {}) {
       modelDir: settings.modelDir,
       threads: settings.threads,
       autoDownload: settings.autoDownload,
+      language: settings.language ?? DEFAULT_LANGUAGE,
       installed: modelPresent(settings.modelDir),
       bytes: modelSize(settings.modelDir),
       phase: state.phase,
@@ -141,8 +142,24 @@ export function apply(ctx, config = {}) {
   const startBridge = () => new Promise((resolve) => {
     const server = createServer((req, res) => {
       const url = new URL(req.url ?? '/', 'http://127.0.0.1');
+
+      if (req.method === 'OPTIONS') {
+        res.writeHead(204, {
+          'access-control-allow-origin': req.headers.origin ?? '*',
+          'access-control-allow-methods': 'GET,POST,OPTIONS',
+          'access-control-allow-headers': 'content-type',
+        });
+        res.end();
+        return;
+      }
+      const origin = req.headers.origin;
       const send = (code, body) => {
-        res.writeHead(code, { 'content-type': 'application/json; charset=utf-8' });
+        res.writeHead(code, {
+          'content-type': 'application/json; charset=utf-8',
+          'access-control-allow-origin': origin ?? '*',
+          'access-control-allow-methods': 'GET,POST,OPTIONS',
+          'access-control-allow-headers': 'content-type',
+        });
         res.end(JSON.stringify(body));
       };
       if (req.method === 'GET' && url.pathname === '/status') {

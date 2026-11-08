@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Voice ext",
+    "description": "使用 GigaAM v3 的本地俄语语音识别；保留内置 Voice input 并添加一个提供商"
+  }
+}

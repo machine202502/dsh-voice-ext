@@ -1,40 +1,52 @@
 # dsh-voice-ext
 
-Локальное распознавание **русской** речи для DeepSeek Harness.
+Local **Russian** speech recognition for DeepSeek Harness.
 
-Плагин не заменяет встроенный Voice input: он добавляет провайдера в общий сервис
-`ctx.speechToText`, поэтому кнопка микрофона, запись и вставка текста остаются штатными.
+The plugin does not replace the built-in Voice input: it adds a provider to the shared
+`ctx.speechToText` service, so the microphone button, recording and text insertion stay stock.
 
 ```
-кнопка микрофона → ctx.speechToText → провайдер dsh-voice-ext → GigaAM v3 (sherpa-onnx)
+microphone button → ctx.speechToText → provider dsh-voice-ext → GigaAM v3 (sherpa-onnx)
 ```
 
-## Модель
+## Model
 
-[GigaAM v3 CTC](https://github.com/salute-developers/GigaAM) (MIT), ONNX-конвертация
+[GigaAM v3 CTC](https://github.com/salute-developers/GigaAM) (MIT), ONNX conversion
 [sherpa-onnx-nemo-ctc-giga-am-v3-russian](https://huggingface.co/csukuangfj/sherpa-onnx-nemo-ctc-giga-am-v3-russian-2025-12-16).
 
-- `model.int8.onnx` — 224 721 476 байт, SHA-256 проверяется после скачивания;
-- `tokens.txt` — словарь модели;
-- каталог по умолчанию: `%LOCALAPPDATA%\dsh-voice-ext\models\gigaam-v3`;
-- CPU, ~1.1 с на 5.5-секундную фразу, без Python и GPU.
+- `model.int8.onnx` — 224,721,476 bytes, SHA-256 is verified after download;
+- `tokens.txt` — the model vocabulary;
+- default directory: `%LOCALAPPDATA%\dsh-voice-ext\models\gigaam-v3`;
+- CPU, ~1.1 s for a 5.5-second phrase, no Python and no GPU.
 
-## Настройки
+## Settings
 
-Страница **Plugins → Voice ext**:
+Page **Plugins → Voice ext**:
 
-| Поле | По умолчанию | Смысл |
+| Field | Default | Meaning |
 |---|---|---|
-| Каталог модели | `%LOCALAPPDATA%\dsh-voice-ext\models\gigaam-v3` | любой каталог с `model.int8.onnx` и `tokens.txt` |
-| Потоков CPU | 2 | `numThreads` узнавателя |
-| Скачивать автоматически | включено | докачать модель при старте, если её нет |
+| Model directory | `%LOCALAPPDATA%\dsh-voice-ext\models\gigaam-v3` | any directory with `model.int8.onnx` and `tokens.txt` |
+| CPU threads | 2 | recognizer `numThreads` |
+| Download automatically | on | fetch the model at start if it is missing |
 
-Выбор провайдера и языка живёт в самом Voice input (сервис `speechToText`);
-этот плагин объявляет языки `ru` и `auto`.
+Provider and language selection live in Voice input itself (the `speechToText` service);
+this plugin declares the languages `ru` and `auto`.
 
-Мост для формы: `127.0.0.1:49234` — `GET /status`, `POST /settings`, `POST /prepare`.
+Bridge for the form: `127.0.0.1:49234` — `GET /status`, `POST /settings`, `POST /prepare`.
 
-## Конфигурация в профиле
+## Languages
+
+Interface languages: Russian, English, Chinese.
+
+The interface language comes from the `language` extension setting when it is `ru`, `en` or
+`zh`. The value `auto` follows the application language: `document.documentElement.lang`, then
+`navigator.language`; `ru*` → `ru`, `zh*` → `zh`, otherwise `en`. With no setting at all the
+default is `ru`.
+
+The setting is changed in the plugin form **Plugins → Voice ext** and stored in the file
+`%LOCALAPPDATA%\dsh-voice-ext\settings.json`.
+
+## Profile configuration
 
 ```yaml
 - insert:
@@ -47,7 +59,7 @@
         autoDownload: true
 ```
 
-Чтобы плагин стал провайдером по умолчанию, укажите его в записи `speech-to-text`:
+To make the plugin the default provider, name it in the `speech-to-text` entry:
 
 ```yaml
 - id: speech-to-text
@@ -56,33 +68,38 @@
     language: ru
 ```
 
-## Установка
+## Screenshots
+
+![Plugin settings](docs/img/settings.jpg)
+
+## Installation
 
 ```json
 "dsh-voice-ext": "github:machine202502/dsh-voice-ext#main"
 ```
 
-и добавить `dsh-voice-ext` в `dsh.profile.bundles`. При установке подтягиваются
-`sherpa-onnx-node@1.13.8` и платформенный бинарник (`sherpa-onnx-win-x64` на Windows).
-После перезапуска провайдер регистрируется; если модель не найдена и `autoDownload`
-включён, она скачается при старте (224 МБ).
+and add `dsh-voice-ext` to `dsh.profile.bundles`. Installation pulls in
+`sherpa-onnx-node@1.13.8` and the platform binary (`sherpa-onnx-win-x64` on Windows).
+After a restart the provider is registered; if the model is not found and `autoDownload` is on,
+it is downloaded at start (224 MB).
 
-## Проверка
+## Testing
 
 ```bash
-node tests/probe.mjs      # распознаёт tests/fixtures/sample-ru-16k.wav напрямую
-node tests/provider.mjs   # регистрирует провайдера и распознаёт через его API
+node tests/probe.mjs      # recognizes tests/fixtures/sample-ru-16k.wav directly
+node tests/provider.mjs   # registers the provider and recognizes through its API
 ```
 
-Эталон: «Вот мой голос, меня же слышно хорошо».
+Reference: «Вот мой голос, меня же слышно хорошо» — “Here is my voice, I can be heard well”.
 
-Диагностический прогон через общий сервис включается конфигом `selfTest: <путь к wav>`;
-результат пишется в `%LOCALAPPDATA%\dsh-voice-ext\selftest.json`.
+A diagnostic run through the shared service is enabled with `selfTest: <path to wav>`;
+the result is written to `%LOCALAPPDATA%\dsh-voice-ext\selftest.json`.
 
-## Зависимости
+## Dependencies
 
-`sherpa-onnx-node@1.13.8` и платформенный бинарник (`sherpa-onnx-win-x64` и т.п.).
+`sherpa-onnx-node@1.13.8` and the platform binary (`sherpa-onnx-win-x64` etc.).
 
-## Лицензия
+## License
 
-MIT. Модель GigaAM распространяется по MIT; конвертация — по лицензии sherpa-onnx (Apache-2.0).
+MIT. The GigaAM model is distributed under MIT; the conversion is under the sherpa-onnx
+license (Apache-2.0).

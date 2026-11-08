@@ -13,7 +13,8 @@
     ".": "./index.js",
     "./client": "./client.js",
     "./locale/*.json": "./locale/*.json",
-    "./icon": "./icon.svg"
+    "./icon": "./icon.svg",
+    "./package.json": "./package.json"
   },
   "files": [
     "index.js",
@@ -22,7 +23,8 @@
     "locale/*.json",
     "icon.svg",
     "README.md",
-    "src/*.js"
+    "src/*.js",
+    "README.ru.md"
   ],
   "dependencies": {
     "sherpa-onnx-node": "1.13.8",
@@ -36,5 +38,6 @@
       "platform": "web",
       "immediately": true
     }
-  }
+  },
+  "icon": "./icon.svg"
 }

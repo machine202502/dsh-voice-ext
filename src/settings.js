@@ -1,10 +1,16 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
+/** The three interface languages plus the `auto` preference. */
+export const LANGUAGES = ['ru', 'en', 'zh', 'auto'];
+/** Internal standard: a plugin with no saved language speaks Russian. */
+export const DEFAULT_LANGUAGE = 'ru';
+
 const KEYS = {
   modelDir: 'string',
   threads: 'number',
   autoDownload: 'boolean',
+  language: 'string',
 };
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
@@ -17,6 +23,7 @@ export function sanitize(input = {}) {
   const threads = Number(input?.threads);
   if (Number.isFinite(threads)) out.threads = clamp(Math.round(threads), 1, 16);
   if (typeof input?.autoDownload === 'boolean') out.autoDownload = input.autoDownload;
+  if (LANGUAGES.includes(input?.language)) out.language = input.language;
   return out;
 }
 
