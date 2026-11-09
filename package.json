@@ -1,7 +1,6 @@
 {
-  "name": "dsh-voice-ext",
-  "version": "0.1.0",
-  "private": true,
+  "name": "@machine202502/dsh-voice-ext",
+  "version": "0.1.1",
   "type": "module",
   "description": "Local Russian speech recognition for DeepSeek Harness: GigaAM v3 CTC via sherpa-onnx, with a custom model path and provider settings.",
   "license": "MIT",
@@ -39,5 +38,9 @@
       "immediately": true
     }
   },
-  "icon": "./icon.svg"
+  "icon": "./icon.svg",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
 }

@@ -75,7 +75,7 @@ To make the plugin the default provider, name it in the `speech-to-text` entry:
 ## Installation
 
 ```json
-"dsh-voice-ext": "github:machine202502/dsh-voice-ext#main"
+"@machine202502/dsh-voice-ext": "^0.1.1"
 ```
 
 and add `dsh-voice-ext` to `dsh.profile.bundles`. Installation pulls in

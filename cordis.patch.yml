@@ -1,6 +1,6 @@
 - insert:
     - id: voice-ext
-      name: 'dsh-voice-ext'
+      name: '@machine202502/dsh-voice-ext'
       config:
         providerId: dsh-voice-ext
         language: ru

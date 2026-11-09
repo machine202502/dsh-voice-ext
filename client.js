@@ -1,5 +1,5 @@
 window.__ModuleLoader__.load({
-  id: 'dsh-voice-ext',
+  id: '@machine202502/dsh-voice-ext',
   factory(require) {
     const React = require('react');
     const h = React.createElement;

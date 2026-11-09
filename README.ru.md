@@ -75,7 +75,7 @@
 ## Установка
 
 ```json
-"dsh-voice-ext": "github:machine202502/dsh-voice-ext#main"
+"@machine202502/dsh-voice-ext": "^0.1.1"
 ```
 
 и добавить `dsh-voice-ext` в `dsh.profile.bundles`. При установке подтягиваются
