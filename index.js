@@ -137,7 +137,7 @@ export function apply(ctx, config = {}) {
     };
   };
 
-  const bridgePort = Number.isFinite(config.bridgePort) ? Number(config.bridgePort) : 49234;
+  const bridgePort = Number.isFinite(config.bridgePort) ? Number(config.bridgePort) : 38034;
 
   const startBridge = () => new Promise((resolve) => {
     const server = createServer((req, res) => {

@@ -4,7 +4,7 @@ window.__ModuleLoader__.load({
     const React = require('react');
     const h = React.createElement;
 
-    const base = 'http://127.0.0.1:49234';
+    const base = 'http://127.0.0.1:38034';
 
     /**
      * Interface languages and the resolution order shared by the plugins in

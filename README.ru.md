@@ -32,7 +32,7 @@
 Выбор провайдера и языка живёт в самом Voice input (сервис `speechToText`);
 этот плагин объявляет языки `ru` и `auto`.
 
-Мост для формы: `127.0.0.1:49234` — `GET /status`, `POST /settings`, `POST /prepare`.
+Мост для формы: `127.0.0.1:38034` — `GET /status`, `POST /settings`, `POST /prepare`.
 
 ## Языки
 

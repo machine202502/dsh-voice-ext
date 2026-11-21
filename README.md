@@ -32,7 +32,7 @@ Page **Plugins → Voice ext**:
 Provider and language selection live in Voice input itself (the `speechToText` service);
 this plugin declares the languages `ru` and `auto`.
 
-Bridge for the form: `127.0.0.1:49234` — `GET /status`, `POST /settings`, `POST /prepare`.
+Bridge for the form: `127.0.0.1:38034` — `GET /status`, `POST /settings`, `POST /prepare`.
 
 ## Languages
 
